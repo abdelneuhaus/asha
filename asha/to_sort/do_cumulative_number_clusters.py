@@ -1,4 +1,4 @@
-from utils import read_poca_files
+from asha.src.io_utils import read_poca_files
 from preprocessing import get_and_save_well_and_FOV
 
 import matplotlib.pyplot as plt

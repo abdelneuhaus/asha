@@ -27,6 +27,18 @@ def get_PALMTracer_files(repertory, prefix='SR_001.MIA'):
     return [os.path.join(dirpath, f).replace("\\", "/") for dirpath, _, files in os.walk(repertory) if os.path.basename(dirpath) == prefix for f in files if f == 'locPALMTracer.txt']
 
 
+def get_statMIA_files(repertory):
+    return [os.path.join(dirpath, filename).replace("\\", "/") for dirpath, _, filenames in os.walk(repertory) for filename in filenames if filename.endswith('statMIA.txt')]
+
+
+def read_statMIA(file):
+    data = pd.read_csv(file, sep='\t', skiprows=2)
+    data['Plane'] = data['Plane'].astype(int)
+    data['Index'] = data['Index'].astype(int)
+    return data
+
+
+
 def create_database():
     """
     Create a database mapping target proteins to their corresponding wells and indices.
@@ -42,15 +54,6 @@ def create_database():
     database["Maple3"] = ['C8', 'D4', 'E8'], 5
     database["mEos4b"] = ['C9', 'D3', 'E9'], 6
     return database
-
-
-
-def fusion(liste1, liste2):
-    fusions = []
-    for mot1 in liste1:
-        for mot2 in liste2:
-            fusions.append(mot1 + mot2)
-    return fusions
 
 
 

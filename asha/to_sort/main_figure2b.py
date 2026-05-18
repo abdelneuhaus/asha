@@ -1,5 +1,5 @@
 from asha.setup_plate import setup_plate
-from asha.utils import remove_files
+from asha.src.io_utils import remove_files
 from boxplots_inside_a_well import boxplots_inside_a_well
 from boxplots_inside_the_plate import boxplots_inside_the_plate
 from boxplots_between_plate import boxplots_between_plate, generate_data_plate_boxplot
