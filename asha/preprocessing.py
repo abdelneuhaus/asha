@@ -7,7 +7,6 @@ import pandas as pd
 
 from collections import defaultdict
 from get_length_on_off import get_length_off, get_length_on
-from localization_precision import localization_precision
 
 
 def lire_csv(nom_fichier):
@@ -87,14 +86,6 @@ def photon_calculation(liste, gain=3.6, emgain=300, qe=0.95):
     for valeur in liste:
         exp_liste.append(valeur*otp/qe)
     return exp_liste
-
-
-def loc_prec_calculation(sigma, photon_loc):
-    otp = []
-    median = statistics.median(sigma)
-    for i in range(len(sigma)):
-        otp.append(localization_precision(photon_loc[i], sigma[i], median=median))
-    return otp
 
 
 def creer_matrice_et_moyennes(noms_fichiers, valeurs, positions):
