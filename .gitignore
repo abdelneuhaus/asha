@@ -1,0 +1,10 @@
+venv/
+DATA/
+data/
+scripts/
+figures/
+PAPER/
+r_stats/
+__pycache__/
+.DS_Store
+*.log
