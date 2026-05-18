@@ -1,6 +1,5 @@
 from PAPER.utils import read_poca_files
-from preprocessing import creer_matrice_et_moyennes, creer_data_boxplot, convertir_coordonnees, pad_list, fusion, fusion_position, photon_calculation, loc_prec_calculation, pre_process_off_frame_csv, pre_process_on_frame_csv, pre_process_sigma, pre_process_single_intensity, get_and_save_well_and_FOV
-from statistical_test_same_well import statistical_test_same_well
+from preprocessing import creer_matrice_et_moyennes, fusion, photon_calculation, loc_prec_calculation, pre_process_off_frame_csv, pre_process_on_frame_csv, pre_process_sigma, pre_process_single_intensity, get_and_save_well_and_FOV
 
 import os
 import seaborn as sns
@@ -11,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def do_96heatmap_one_photophysics_parameter(exp, index, list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv,
+def heatmap_single_parameters(exp, index, list_of_poca_files, list_of_frame_csv, list_of_int_csv, list_of_sigma_csv,
                                           isPT=True, stats=statistics.mean, get_boxplot=True):
     csv_frame_label  = ['ON times', "OFF times"]
     csv_int_label =  "Intensity_loc"

@@ -3,7 +3,7 @@ import numpy as np
 import random
 import os
 
-from utils import read_poca_files, read_locPALMTracer_file
+from asha.utils import read_poca_files, read_locPALMTracer_file
 
 SURFACE = (256*0.16) * (256*0.16)
 

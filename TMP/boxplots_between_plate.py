@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from setup_plate import setup_plate
-from utils import read_poca_files, read_locPALMTracer_file, create_database
+from asha.utils import read_poca_files, read_locPALMTracer_file, create_database
 
 
 def generate_data_plate_boxplot(plate_path, protein, parameter, prefix):
