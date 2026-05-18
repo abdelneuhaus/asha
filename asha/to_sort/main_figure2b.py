@@ -1,4 +1,4 @@
-from setup_plate import setup_plate
+from asha.setup_plate import setup_plate
 from asha.utils import remove_files
 from boxplots_inside_a_well import boxplots_inside_a_well
 from boxplots_inside_the_plate import boxplots_inside_the_plate
