@@ -2,6 +2,7 @@ venv/
 DATA/
 data/
 TMP/
+tmp/
 r_stats/
 __pycache__/
 .DS_Store
