@@ -1,4 +1,4 @@
-from setup_plate import setup_plate
+from asha.setup_plate import setup_plate
 from asha.utils import get_PALMTracer_files, get_poca_files
 from plot_gradient_spycatcher import plot_gradient_spycatcher
 from plot_gradient_meos import plot_gradient_meos

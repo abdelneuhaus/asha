@@ -17,7 +17,7 @@ def read_statMIA(file):
 # 240417_W1_FPs, 240924_W1_FPs, 241113_W1_FPs
 list_of_mia_files = get_statMIA_files('D:/ANALYSIS_PAPER/test_gammes/MEOS_BIS')
 nlocs = 60
-len_window = 00
+len_window = 300
 
 for mia_file in list_of_mia_files:
     raw_data = read_statMIA(mia_file)
