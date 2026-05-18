@@ -2,8 +2,8 @@ import os
 import re
 import numpy as np
 import pandas as pd
-
 from collections import defaultdict
+
 
 def get_poca_files(repertory, prefix='SR_001.MIA'):
         return [os.path.join(dirpath, f).replace("\\", "/") for dirpath, _, files in os.walk(repertory) if os.path.basename(dirpath) == prefix for f in files if f == 'locPALMTracer_merged.txt']
@@ -14,6 +14,7 @@ def read_poca_files(file):
     df.loc[df['# seq OFF'] > 5000, '# seq OFF'] = df['blinks']
     return df.iloc[:,:-1]
 
+
 def read_locPALMTracer_file(file):
     data = pd.read_csv(file, sep='\t', skiprows=2)
     data['id'] = [int(i) for i in data['id']]
@@ -21,9 +22,9 @@ def read_locPALMTracer_file(file):
     data['Index'] = [int(i) for i in data['Index']]
     return data
 
+
 def get_PALMTracer_files(repertory, prefix='SR_001.MIA'):
     return [os.path.join(dirpath, f).replace("\\", "/") for dirpath, _, files in os.walk(repertory) if os.path.basename(dirpath) == prefix for f in files if f == 'locPALMTracer.txt']
-
 
 
 def create_database():
@@ -66,13 +67,3 @@ def creer_matrice_et_medianes(noms_fichiers, valeurs, positions):
             mediane = np.median(valeurs_par_position[position])
             matrice_puits[i] = round(float(mediane), 1)
     return matrice_puits
-
-
-def remove_files(pathway):
-    to_remove = ["locPALMTracer.txt", "locPALMTracer_merged.txt", "frame.csv", "intensity.csv", "indices.csv", "sigmaXY.csv", "x.csv", "y.csv"]
-    for root, dirs, files in os.walk(pathway):
-        for filename in files:
-            if filename in to_remove:
-                file_path = os.path.join(root, filename)
-                if os.path.exists(file_path):
-                    os.remove(file_path)

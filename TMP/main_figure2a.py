@@ -1,8 +1,8 @@
 from setup_plate import setup_plate
-from utils import get_PALMTracer_files, get_poca_files
+from asha.utils import get_PALMTracer_files, get_poca_files
 from plot_gradient_spycatcher import plot_gradient_spycatcher
 from plot_gradient_meos import plot_gradient_meos
-from utils import remove_files
+from asha.utils import remove_files
 
 plate_gamme1 = "D:/ANALYSIS_PAPER/test_gammes/MEOS"   # 250213_HCS_gamme, 250205_HCS_gamme, 250123_HCS_gamme, 250130_HCS_gamme
 display_mode = "random" # random or both

@@ -1,4 +1,4 @@
-from utils import get_PALMTracer_files, get_poca_files
+from asha.utils import get_PALMTracer_files, get_poca_files
 
 
 def setup_plate(repertory, prefix='SR_001.MIA'):

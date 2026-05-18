@@ -3,28 +3,20 @@ from tkinter import ttk
 from tkinter.filedialog import askdirectory
 
 from PAPER.utils import read_poca_files, get_poca_files, get_PALMTracer_files, get_csv_poca_frame_files, get_csv_poca_intensity_files, get_csv_poca_sigma_files
-from save_loc_as_pdf import save_loc_as_pdf
 from do_analysis_for_one_acquisition import do_analysis_for_one_acquisition
 from do_cumulative_number_clusters import do_cumulative_number_clusters
-from do_photophysics_parameters_plotting import do_photophysics_parameters_plotting
-from do_heatmap_photophysics_parameters import do_heatmap_photophysics_parameters
-from do_heatmap_one_photophysics_parameter import do_heatmap_one_photophysics_parameter
-from do_96heatmap_one_photophysics_parameter import do_96heatmap_one_photophysics_parameter
+from asha.heatmap_single_parameters import do_96heatmap_one_photophysics_parameter
 from time_distribution_same_well import time_distribution_same_well
 from time_distribution_same_row import time_distribution_same_row
-from preprocessing import fusion
+from asha.preprocessing import fusion
 from fov_photophysics_distribution import fov_photophysics_distribution
-from well_photophysics_distribution import well_photophysics_distribution
-from do_stat_tests_fovs import do_stat_tests_fovs
-from do_stats_tests_row import do_stats_tests_row
-from do_96heatmap_photophysics_parameters import do_96heatmap_photophysics_parameters
 from do_fps_heatmap import do_fps_heatmap, generate_fps_heatmap
 
 import os
 import statistics
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+
 
 class MyWindow:
     

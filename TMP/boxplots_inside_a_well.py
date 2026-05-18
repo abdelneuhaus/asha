@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-from utils import read_poca_files, read_locPALMTracer_file, create_database
+from asha.utils import read_poca_files, read_locPALMTracer_file, create_database
 
 
 def boxplots_inside_a_well(target_protein, group_poca_files, group_palm_tracer_files):

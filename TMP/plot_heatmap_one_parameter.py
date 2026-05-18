@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import numpy as np
 
-from utils import read_poca_files, fusion, creer_matrice_et_medianes, get_poca_files, get_PALMTracer_files, read_locPALMTracer_file
+from asha.utils import read_poca_files, fusion, creer_matrice_et_medianes, get_poca_files, get_PALMTracer_files, read_locPALMTracer_file
 
 
 def plot_heatmap_one_parameter(plate_pathway, parameter, prefix):
