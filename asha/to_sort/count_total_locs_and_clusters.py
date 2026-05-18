@@ -1,4 +1,4 @@
-from utils import get_PALMTracer_files, get_poca_files, read_poca_files, read_locPALMTracer_file
+from asha.src.io_utils import get_PALMTracer_files, get_poca_files, read_poca_files, read_locPALMTracer_file
 
 
 def count_total_locs_and_clusters(plate_path):
