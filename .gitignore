@@ -1,8 +1,7 @@
 venv/
 DATA/
 data/
-figures/
-PAPER/
+TMP/
 r_stats/
 __pycache__/
 .DS_Store
