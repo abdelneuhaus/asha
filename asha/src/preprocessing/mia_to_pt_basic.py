@@ -1,7 +1,7 @@
 import pandas as pd
 import math
 
-from asha.src.io_utils import get_statMIA_files, read_statMIA
+from src.io_utils import get_statMIA_files, read_statMIA
 
 
 def mia_to_pt_basic(plate_path:str):
