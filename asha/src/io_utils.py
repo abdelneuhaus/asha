@@ -1,12 +1,23 @@
 import os
 import re
+
 import numpy as np
 import pandas as pd
+
+from tkinter import Tk, filedialog
 from collections import defaultdict
 
 
 def get_poca_files(repertory, prefix='SR_001.MIA'):
         return [os.path.join(dirpath, f).replace("\\", "/") for dirpath, _, files in os.walk(repertory) if os.path.basename(dirpath) == prefix for f in files if f == 'locPALMTracer_merged.txt']
+
+
+def get_PALMTracer_files(repertory, prefix='SR_001.MIA'):
+    return [os.path.join(dirpath, f).replace("\\", "/") for dirpath, _, files in os.walk(repertory) if os.path.basename(dirpath) == prefix for f in files if f == 'locPALMTracer.txt']
+
+
+def get_statMIA_files(repertory):
+    return [os.path.join(dirpath, filename).replace("\\", "/") for dirpath, _, filenames in os.walk(repertory) for filename in filenames if filename.endswith('statMIA.txt')]
 
 
 def read_poca_files(file):
@@ -21,14 +32,6 @@ def read_locPALMTracer_file(file):
     data['Plane'] = [int(i) for i in data['Plane']]
     data['Index'] = [int(i) for i in data['Index']]
     return data
-
-
-def get_PALMTracer_files(repertory, prefix='SR_001.MIA'):
-    return [os.path.join(dirpath, f).replace("\\", "/") for dirpath, _, files in os.walk(repertory) if os.path.basename(dirpath) == prefix for f in files if f == 'locPALMTracer.txt']
-
-
-def get_statMIA_files(repertory):
-    return [os.path.join(dirpath, filename).replace("\\", "/") for dirpath, _, filenames in os.walk(repertory) for filename in filenames if filename.endswith('statMIA.txt')]
 
 
 def read_statMIA(file):
@@ -70,3 +73,6 @@ def creer_matrice_et_medianes(noms_fichiers, valeurs, positions):
             mediane = np.median(valeurs_par_position[position])
             matrice_puits[i] = round(float(mediane), 1)
     return matrice_puits
+
+
+
