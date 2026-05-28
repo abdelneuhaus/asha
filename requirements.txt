@@ -6,3 +6,4 @@ pandas
 ipykernel
 ipywidgets
 ipyfilechooser
+openpyxl
