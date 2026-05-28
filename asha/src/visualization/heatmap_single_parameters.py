@@ -10,8 +10,19 @@ from src.io_utils import get_poca_files, read_poca_files, creer_matrice_et_media
 
 def plot_plate_heatmap(pathway, param):
     """
-    Prépare les données et lance la heatmap pour la plaque SMLM-HCS.
+    Prepares data and renders a plate heatmap for HCS-SMLM experiments.
+
+    Args:
+        pathway (str): The absolute path to the experiment directory containing 
+            the PoCA files.
+        param (str): The photophysical parameter to visualize (e.g., 'intensity', 
+            'photon_loc', 'blinks').
+
+    Returns:
+        None: The function generates and saves a PDF plot to the results 
+            directory and displays it in the current output cell.
     """
+
     exp_name = os.path.basename(os.path.normpath(pathway))
     list_of_poca = get_poca_files(pathway) 
     if not list_of_poca:
@@ -20,15 +31,32 @@ def plot_plate_heatmap(pathway, param):
     heatmap_single_parameters(exp_name=exp_name, param=param, list_of_poca_files=list_of_poca, stats=np.median)
 
 
+
+
 def heatmap_single_parameters(exp_name, param, list_of_poca_files, stats=np.median):
     """
-    Génère une heatmap à partir des fichiers PoCA pour un paramètre photophysique donné.
+    Generates and displays a heatmap of a photophysical parameter across a 96-well plate.
+
+    Args:
+        exp_name (str): Name of the experiment, used for plot titling.
+        param (str): The photophysical parameter to compute (e.g., 'intensity', 
+            'avg_on', 'photon_loc').
+        list_of_poca_files (list of str): List of file paths to the PoCA data files.
+        stats (callable, optional): The statistical function to apply (default is np.median).
+
+    Returns:
+        None: Displays the heatmap directly using matplotlib and seaborn.
+
+    Note:
+        Handles potential division by zero and infinite values by replacing them 
+        with NaN, ensuring the heatmap remains clean.
     """
     heatmap_data = []
     
     for f in list_of_poca_files:
         df = read_poca_files(f)
-        
+        df['intensity'] *= (3.6 / 300)
+
         if param == 'avg_on':
             values = np.divide(df['total ON'], df['# seq ON'], out=np.zeros_like(df['total ON'], dtype=float), where=df['# seq ON']!=0)
         

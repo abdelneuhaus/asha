@@ -10,7 +10,16 @@ from src.io_utils import get_poca_files, read_poca_files, create_database
 
 def plot_well_boxplots(pathway, param, protein):
     """
-    Génère un boxplot comparant les réplicats (puits individuels) d'une protéine spécifique.
+    Generates a boxplot comparing individual well replicates for a specific protein.
+
+    Args:
+        pathway (str): Path to the experiment directory.
+        param (str): Photophysical parameter to plot (e.g., 'intensity', 'avg_on').
+        protein (str): Target protein name (must exist in create_database()).
+
+    Returns:
+        None: Displays the plot in the notebook and saves a PDF version 
+            to the results directory.
     """
 
     db = create_database()
@@ -35,7 +44,7 @@ def plot_well_boxplots(pathway, param, protein):
         
         if well_name in target_wells:
             df = read_poca_files(f)
-            
+            df['intensity'] *= (3.6 / 300)
             if param == 'avg_on':
                 values = np.divide(df['total ON'], df['# seq ON'], out=np.zeros_like(df['total ON'], dtype=float), where=df['# seq ON']!=0)
             elif param == 'avg_off':
@@ -47,7 +56,7 @@ def plot_well_boxplots(pathway, param, protein):
                 
             clean_values = pd.Series(values).replace([np.inf, -np.inf], np.nan).dropna()
             
-            temp_df = pd.DataFrame({'Value': clean_values, 'Puits': well_name})
+            temp_df = pd.DataFrame({'Value': clean_values, 'Wells': well_name})
             data_frames.append(temp_df)
             
     if not data_frames:
@@ -58,10 +67,10 @@ def plot_well_boxplots(pathway, param, protein):
     
 
     plt.figure(figsize=(8, 6))
-    sns.boxplot(data=final_df, x='Puits', y='Value', order=target_wells, hue='Puits', legend=False, palette="Set2", showfliers=False)
-    plt.title(f"Comparaison des réplicats : {protein}\n(Paramètre : {param.upper()})", fontsize=14)
+    sns.boxplot(data=final_df, x='Wells', y='Value', order=target_wells, hue='Wells', legend=False, palette="Set2", showfliers=False)
+    plt.title(f"Replicates comparison : {protein}\n(Parameter : {param.upper()})", fontsize=14)
     plt.ylabel(param)
-    plt.xlabel("Puits")
+    plt.xlabel("Wells")
     plt.grid(axis='y', linestyle='--', alpha=0.7)    
     plt.show()
     plt.close()
