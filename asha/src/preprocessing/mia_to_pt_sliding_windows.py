@@ -9,7 +9,22 @@ def mia_to_pt_sliding_windows(plate_path:str, nlocs:int=60, len_window:int=300,
                               sigma_min:float=0.0, sigma_max:float=2.0,
                               intensity_min:int=0, intensity_max:int=10e6):
     """
-    
+    Converts statMIA files to PALMTracer format using a sliding window density filter.
+
+    Args:
+        plate_path (str): The root directory containing the statMIA files.
+        nlocs (int, optional): Density threshold for localizations per frame. 
+            Defaults to 60.
+        len_window (int, optional): Window size for rolling average calculation. 
+            Defaults to 300.
+        sigma_min (float, optional): Minimum threshold for SigmaX. Defaults to 0.0.
+        sigma_max (float, optional): Maximum threshold for SigmaX. Defaults to 2.0.
+        intensity_min (int, optional): Minimum integrated intensity threshold. Defaults to 0.
+        intensity_max (int, optional): Maximum integrated intensity threshold. 
+            Defaults to 10e6.
+
+    Returns:
+        None: Saves processed data to disk in the same directory as the input files.
     """
     
     list_of_mia_files = get_statMIA_files(plate_path)
