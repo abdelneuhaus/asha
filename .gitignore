@@ -5,5 +5,6 @@ TMP/
 tmp/
 to_sort/
 __pycache__/
+results/
 .DS_Store
 *.log
