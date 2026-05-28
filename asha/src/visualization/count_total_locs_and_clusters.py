@@ -17,6 +17,7 @@ def convert_size(size_bytes):
     s = round(size_bytes / p, 2)
     return "%s %s" % (s, size_name[i])
 
+
 def get_size(start_path = '.'):
     total_size = 0
     for dirpath, dirnames, filenames in os.walk(start_path):
@@ -27,9 +28,6 @@ def get_size(start_path = '.'):
                 total_size += os.path.getsize(fp)
 
     return total_size
-
-print(get_size(), 'bytes')
-
 
 
 def count_total_locs_and_clusters(plate_path):

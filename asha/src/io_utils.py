@@ -74,4 +74,10 @@ def creer_matrice_et_medianes(noms_fichiers, valeurs, positions):
     return matrice_puits
 
 
+def fusion(cols, idx):
+    """
+    Génère toutes les combinaisons possibles de puits (ex: 'A1', 'A2', ..., 'H12')
+    à partir d'une liste de lignes (lettres) et de colonnes (chiffres).
+    """
+    return [f"{c}{i}" for c in cols for i in idx]
 
