@@ -54,7 +54,7 @@ HCS-SMLM-Pipeline/
 * `openpyxl` (for Excel export)
 
 *Install via:* ```bash
-pip install pandas numpy matplotlib seaborn ipywidgets ipyfilechooser openpyxl
+pip install pandas numpy matplotlib seaborn ipywidgets ipyfilechooser openpyxl```
 
 
 ### R Requirements
