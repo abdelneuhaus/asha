@@ -1,41 +1,28 @@
-library(ggplot2)
 library(dplyr)
 library(ggpubr)
+library(ggplot2)
 library(patchwork)
 
-# Chargement des fonctions depuis utils.R
 source("utils.R")
 
-# ==========================================
-# 0. PARAMÈTRES D'ENTRÉE (À MODIFIER ICI)
-# ==========================================
-# Choix du paramètre à analyser.
-# -> Mettre "photon_loc" pour faire le calcul (Intensity / Total ON * facteur)
-# -> OU mettre le nom exact d'une colonne (ex: "intensity", "sigma", "background")
+# parameter to change manually
 target_param <- "photon_loc" 
 
-# Le titre de l'axe Y qui s'affichera sur les graphiques
+# title to change manually
 y_axis_label <- "Number of photons\nper localization" 
-
-# Limites de l'axe Y pour les graphes 1 et 3 (ex: c(45, 210)). 
-# Mettre NULL pour laisser ggplot ajuster automatiquement selon le paramètre.
 y_limits <- c(45, 210) 
-# ==========================================
 
-# 1. Configuration des dossiers et variables
 base_dirs <- c(
-  "D:/ANALYSIS_PAPER/new_threshold/240417_W1_FPs",
-  "D:/ANALYSIS_PAPER/new_threshold/240924_W1_FPs",
-  "D:/ANALYSIS_PAPER/new_threshold/241113_W1_FPs"
+  "D:/240417_W1_FPs",
+  "D:/240924_W1_FPs",
+  "D:/241113_W1_FPs"
 )
 plate_names <- c("Plate 1", "Plate 2", "Plate 3")
 target_wells <- c("E3", "D9", "C3")
 
-# Dataframes pour stocker les résultats
-raw_data_fov <- data.frame() # Pour le Graphe 1
-mean_data_all <- data.frame() # Pour les Graphes 2 et 3
+raw_data_fov <- data.frame() 
+mean_data_all <- data.frame()
 
-# 2. Boucle de lecture et d'extraction des données
 for (p in seq_along(base_dirs)) {
   plate_dir <- base_dirs[p]
   plate_name <- plate_names[p]
@@ -50,26 +37,22 @@ for (p in seq_along(base_dirs)) {
     for (f in seq_along(poca_files)) {
       df_poca <- read_poca_files(poca_files[f])
       
-      # Extraction ou calcul dynamique selon le choix de l'utilisateur
       if (target_param == "photon_loc") {
-        # Cas spécifique : calcul
         if ("intensity" %in% colnames(df_poca) && "total ON" %in% colnames(df_poca)) {
           extracted_values <- (df_poca$intensity / df_poca$`total ON`) * (3.6 / 300)
         } else {
-          warning(paste("Colonnes 'intensity' ou 'total ON' manquantes pour le calcul dans:", poca_files[f]))
+          warning(paste("'intensity' or 'total ON' columns missing in:", poca_files[f]))
           next
         }
       } else {
-        # Cas général : extraction de la colonne
         if (target_param %in% colnames(df_poca)) {
           extracted_values <- df_poca[[target_param]]
         } else {
-          warning(paste("Colonne manquante (", target_param, ") dans le fichier:", poca_files[f]))
+          warning(paste("Missing column (", target_param, ") in file:", poca_files[f]))
           next
         }
       }
       
-      # Extraction pour le Graphe 1 : Uniquement les FOVs du premier puits (C3) de la Plate 1
       if (p == 1 && well == target_wells[1]) {
         temp_raw <- data.frame(
           FOV = paste("FOV", f),
@@ -78,7 +61,6 @@ for (p in seq_along(base_dirs)) {
         raw_data_fov <- bind_rows(raw_data_fov, temp_raw)
       }
       
-      # Extraction pour les Graphes 2 & 3 : Moyenne de l'image (FOV)
       temp_mean <- data.frame(
         Plate = plate_name,
         Well = well,
@@ -90,22 +72,17 @@ for (p in seq_along(base_dirs)) {
   }
 }
 
-# --- 3. PRÉPARATION DES LABELS ET COULEURS ---
 
-# Conversion de la colonne Well pour remplacer C3, D9, E3 par Well 1, Well 2, Well 3
 mean_data_all$Well <- factor(mean_data_all$Well, levels = target_wells)
 levels(mean_data_all$Well) <- c("Well 1", "Well 2", "Well 3")
 
-# Définition des couleurs associées aux nouveaux noms
-color_well1 <- "#6BAED6" # Bleu moyen (pour Graphe 1 et le bâton Well 1)
-color_well2 <- "#3182BD" # Bleu plus foncé
-color_well3 <- "#08519C" # Bleu très foncé
+color_well1 <- "#6BAED6"
+color_well2 <- "#3182BD"
+color_well3 <- "#08519C"
 well_colors <- c("Well 1" = color_well1, "Well 2" = color_well2, "Well 3" = color_well3)
 
 
-# --- 4. CRÉATION DES GRAPHIQUES ---
 
-# Thème commun
 custom_theme <- theme_classic() +
   theme(
     plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
@@ -114,7 +91,7 @@ custom_theme <- theme_classic() +
     legend.position = "none"
   )
 
-# Graphe 1 : Field-of-view Replicates 
+# fov replicates 
 p1 <- ggplot(raw_data_fov, aes(x = FOV, y = value)) +
   geom_boxplot(fill = color_well1, color = "black", outlier.shape = NA, width = 0.5, alpha = 0.7) +
   labs(title = "Field-of-view Replicates", 
@@ -122,12 +99,10 @@ p1 <- ggplot(raw_data_fov, aes(x = FOV, y = value)) +
        x = "") +
   custom_theme
 
-# Ajout conditionnel de la limite Y si elle n'est pas NULL
 if (!is.null(y_limits)) { p1 <- p1 + coord_cartesian(ylim = y_limits) }
 
-# Graphe 2 : Well Replicates 
+# well replicates 
 data_p2 <- mean_data_all %>% filter(Plate == "Plate 1")
-
 p2 <- ggplot(data_p2, aes(x = Well, y = mean_value, fill = Well)) +
   stat_summary(fun = mean, geom = "bar", color = "black", width = 0.7, alpha = 0.8) +
   stat_summary(fun.data = mean_sd, geom = "errorbar", width = 0.1) +
@@ -137,7 +112,7 @@ p2 <- ggplot(data_p2, aes(x = Well, y = mean_value, fill = Well)) +
   labs(title = "Well Replicates", y = "", x = "") +
   custom_theme
 
-# Graphe 3 : Plate Replicates 
+# plate replicates 
 p3 <- ggplot(mean_data_all, aes(x = Plate, y = mean_value, fill = Plate)) +
   geom_boxplot(color = "black", outlier.shape = NA, width = 0.5, alpha = 0.5) +
   geom_jitter(width = 0.1, shape = 21, fill = "white", color = "black", size = 1.5, alpha = 0.7) +
@@ -145,10 +120,8 @@ p3 <- ggplot(mean_data_all, aes(x = Plate, y = mean_value, fill = Plate)) +
   labs(title = "Plate Replicates", y = "", x = "") +
   custom_theme
 
-# Ajout conditionnel de la limite Y si elle n'est pas NULL
 if (!is.null(y_limits)) { p3 <- p3 + coord_cartesian(ylim = y_limits) }
 
-# 5. Assemblage final avec patchwork
 final_plot <- p1 + p2 + p3
 print(final_plot)
 ggsave("figure_replicates_carrés.png", plot = final_plot, width = 12, height = 4.5, dpi = 300)
