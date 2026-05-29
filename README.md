@@ -20,7 +20,7 @@ This toolkit bridges automated data extraction from PoCA and PALMTracer outputs 
     * **Comparison Matrices (R):** Generate normalized Log2 ratio matrices to benchmark multiple proteins against a reference (e.g., mEos3.2) across multiple plates.
 * **Batch Excel Export:** Pool thousands of localizations across multiple experimental plates and export aligned statistics into multi-sheet Excel files.
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 HCS-SMLM-Pipeline/
@@ -40,3 +40,47 @@ HCS-SMLM-Pipeline/
 │
 ├── data/                   # (Optional) Place raw experimental data here
 └── results/                # Output directory for exported PDFs and Excel files
+
+
+## Dependencies
+
+### Python Requirements
+* `pandas`
+* `numpy`
+* `matplotlib`
+* `seaborn`
+* `ipywidgets`
+* `ipyfilechooser`
+* `openpyxl` (for Excel export)
+
+*Install via:* ```bash
+pip install pandas numpy matplotlib seaborn ipywidgets ipyfilechooser openpyxl
+
+
+### R Requirements
+* `ggplot2`
+* `dplyr`
+* `reshape2`
+* `patchwork`
+
+## Usage Guide
+
+### 1. Interactive Data Exploration (Python)
+Launch your Jupyter Notebook located in the `notebooks/` directory. The notebook utilizes `ipywidgets` to render a graphical interface.
+1. Select your target **Plate Directory**.
+2. Choose an **Action** (Experiment Statistics, Boxplots, or Plate Heatmap).
+3. Select the **Photophysical Parameter** (e.g., `photon_loc`).
+4. Set the **Scale** (Compare FOVs vs Compare 3 wells).
+5. Click **Run** to generate and automatically save the PDF plots to the `results/` folder.
+
+### 2. Batch Excel Export
+Using the *Excel Exporter UI* in the notebook:
+1. Click **+ Add Plate** to dynamically add multiple experiment directories using the interactive File Chooser.
+2. Select the statistical method (**Median** or **Mean**).
+3. Click **Run Extraction**. The script will pool all localizations per protein, compute the statistics, separate distinct plates with empty rows, and save everything into a clean, multi-sheet `results_combined.xlsx` file.
+
+### 3. Protein Comparison Matrix (R)
+To benchmark proteins against a reference across multiple experiments:
+1. Open `R/comparison_matrix.R`.
+2. Update the `base_dirs` vector with your experiment paths.
+3. Run the script. It will extract the data, normalize it against the reference (default: mEos3.2), calculate the Log2 ratio, and output a high-resolution heatmap matrix (`comparison_matrix_[param].png`).
