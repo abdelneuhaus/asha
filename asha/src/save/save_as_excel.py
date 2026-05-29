@@ -26,7 +26,7 @@ def process_and_export_plates(plate_paths, stat_choice, output_file="./results/h
         "mMaple3": ["C8", "D4", "E8"],
     }
     
-    parameters = ["photon_loc", "total ON", "intensity", "blinks"]
+    parameters = ["photon_loc", "total ON", "intensity", "blinks", "avg_on", "avg_off"]
     global_data = {param: {prot: [] for prot in fixed_subfolders} for param in parameters}
     stat_func = np.median if stat_choice == 'Median' else np.mean
 
@@ -51,16 +51,18 @@ def process_and_export_plates(plate_paths, stat_choice, output_file="./results/h
                 for file in poca_files:
                     try:
                         df = read_poca_files(file) 
-                        df = df[df['blinks'] < np.quantile(df["blinks"], 1)]
-                        df = df[df['total ON'] < np.quantile(df["total ON"], 1)]
-                        
                         photon_loc = (df['intensity'] / df['total ON']) * (3.6/300)
                         intensity = df['intensity'] * (3.6/300)
-                        
+                        avg_on = df['total ON'] / df['# seq ON']
+                        avg_off = df['total OFF'] / df['# seq OFF']
+
                         plate_prot_data["photon_loc"].append(stat_func(photon_loc.dropna()))
                         plate_prot_data["total ON"].append(stat_func(df["total ON"].dropna()))
                         plate_prot_data["intensity"].append(stat_func(intensity.dropna()))
                         plate_prot_data["blinks"].append(stat_func(df["blinks"].dropna()))
+                        plate_prot_data["avg_on"].append(stat_func(avg_on.dropna()))
+                        plate_prot_data["avg_off"].append(stat_func(avg_off.dropna()))
+
                     except Exception as e:
                         print(f"Error on file {file}: {e}")
             
