@@ -40,7 +40,7 @@ HCS-SMLM-Pipeline/
 │
 ├── data/                   # (Optional) Place raw experimental data here
 └── results/                # Output directory for exported PDFs and Excel files
-
+```
 
 ## Dependencies
 
