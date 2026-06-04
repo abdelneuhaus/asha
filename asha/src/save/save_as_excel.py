@@ -38,9 +38,9 @@ def process_and_export_plates(plate_paths, stat_choice, output_file="./results/h
             
         print(f"Plate processing : {os.path.basename(plate_path)}")
         
+        current_plate_data = {param: {prot: [] for prot in fixed_subfolders} for param in parameters}
+        
         for protein, wells in fixed_subfolders.items():
-            plate_prot_data = {param: [] for param in parameters}
-            
             for well in wells:
                 well_path = os.path.join(plate_path, well)
                 if not os.path.exists(well_path):
@@ -56,36 +56,33 @@ def process_and_export_plates(plate_paths, stat_choice, output_file="./results/h
                         avg_on = df['total ON'] / df['# seq ON']
                         avg_off = df['total OFF'] / df['# seq OFF']
 
-                        plate_prot_data["photon_loc"].append(stat_func(photon_loc.dropna()))
-                        plate_prot_data["total ON"].append(stat_func(df["total ON"].dropna()))
-                        plate_prot_data["intensity"].append(stat_func(intensity.dropna()))
-                        plate_prot_data["blinks"].append(stat_func(df["blinks"].dropna()))
-                        plate_prot_data["avg_on"].append(stat_func(avg_on.dropna()))
-                        plate_prot_data["avg_off"].append(stat_func(avg_off.dropna()))
+                        current_plate_data["photon_loc"][protein].append(stat_func(photon_loc.dropna()))
+                        current_plate_data["total ON"][protein].append(stat_func(df["total ON"].dropna()))
+                        current_plate_data["intensity"][protein].append(stat_func(intensity.dropna()))
+                        current_plate_data["blinks"][protein].append(stat_func(df["blinks"].dropna()))
+                        current_plate_data["avg_on"][protein].append(stat_func(avg_on.dropna()))
+                        current_plate_data["avg_off"][protein].append(stat_func(avg_off.dropna()))
 
                     except Exception as e:
                         print(f"Error on file {file}: {e}")
+        
+        for param in parameters:
+            max_len_current = max((len(current_plate_data[param][prot]) for prot in fixed_subfolders), default=0)
             
-            for param in parameters:
-                global_data[param][protein].extend(plate_prot_data[param])
+            for protein in fixed_subfolders:
+                prot_data = current_plate_data[param][protein]
+                padded_data = prot_data + [np.nan] * (max_len_current - len(prot_data))
+                global_data[param][protein].extend(padded_data)
                 global_data[param][protein].append(np.nan)
 
-    # excel export
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     print(f"Saving in {output_file}...")
     
     with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
         for param in parameters:
-            max_length = max(len(global_data[param][prot]) for prot in fixed_subfolders)
-            aligned_data = {
-                prot: global_data[param][prot] + [np.nan] * (max_length - len(global_data[param][prot]))
-                for prot in fixed_subfolders
-            }
-            df_export = pd.DataFrame(aligned_data)
-            
+            df_export = pd.DataFrame(global_data[param])
             if not df_export.empty and df_export.iloc[-1].isna().all():
                 df_export = df_export.iloc[:-1]
-                
             df_export.to_excel(writer, index=False, sheet_name=param)
             
     print("Export worked properly!")
