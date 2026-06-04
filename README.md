@@ -59,7 +59,8 @@ python -m venv venv
 
 venv/source/activate
 
-pip install -r requirements.txt```
+pip install -r requirements.txt
+```
 
 
 ### R Requirements
