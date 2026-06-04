@@ -1,6 +1,8 @@
-import matplotlib.pyplot as plt
-
+import os
+import numpy as np
+import pandas as pd
 from src.io_utils import read_poca_files, get_poca_files, get_PALMTracer_files, read_locPALMTracer_file
+
 
 
 list_of_pt_files = get_PALMTracer_files('D:/ANALYSIS_PAPER/gamme/SPYCATCHER')
@@ -8,12 +10,9 @@ list_of_poca_files = get_poca_files('D:/ANALYSIS_PAPER/gamme/SPYCATCHER')
 
 spycatcher_wells = ["C9", "C10", "D3", "D4", "D5", "D6", "D7", "D8", "D9", "D10", "E3", "E4", "E5", "E6"]
 concentration = [10, 7.5, 5, 2, 1, 0.75, 0.5, 0.2, 0.1, 0.075, 0.05, 0.02, 0.01, 0]
-surface = (256 * 0.16) * (256 * 0.16)
 
-plot_conc_densities = []
-plot_densities = []
-plot_conc_clusters = []
-plot_clusters = []
+surface = (256 * 0.16) * (256 * 0.16)
+export_data = []
 
 print("Extracting data...")
 
@@ -39,31 +38,18 @@ for position, conc in zip(spycatcher_wells, concentration):
         raw_file_poca = read_poca_files(file)
         cluster_per_file.append(len(raw_file_poca))
 
-    if density_per_file:
-        plot_conc_densities.append(conc)
-        plot_densities.append(sum(density_per_file) / len(density_per_file))
-        
-    if cluster_per_file:
-        plot_conc_clusters.append(conc)
-        plot_clusters.append(sum(cluster_per_file) / len(cluster_per_file))
+    val_density_finale = sum(density_per_file) / len(density_per_file) if density_per_file else np.nan
+    val_cluster_final = sum(cluster_per_file) / len(cluster_per_file) if cluster_per_file else np.nan
+    
+    export_data.append({
+        "Concentration %": conc,
+        "Mean loc density (loc/um2)": val_density_finale,
+        "Mean #Clusters": val_cluster_final
+    })
 
-print("Generating plot...")
+# Création du tableau final et sauvegarde en Excel
+output_excel = "spycatcher_gradient.xlsx"
+df_results = pd.DataFrame(export_data)
+df_results.to_excel(output_excel, index=False)
 
-fig, ax1 = plt.subplots(figsize=(5, 4))
-
-ax1.scatter(plot_conc_densities, plot_densities, color='steelblue', label='Densité de locs')
-ax1.set_xlabel('SpyCatcher Concentration (log scale)', fontsize=12)
-ax1.set_ylabel('Loc Density (loc/µm²)', color='steelblue', fontsize=12)
-ax1.tick_params(axis='y', labelcolor='steelblue')
-ax1.set_xscale('log')
-
-ax2 = ax1.twinx()
-ax2.scatter(plot_conc_clusters, plot_clusters, color='salmon', label='Nombre de clusters')
-ax2.set_ylabel('#Clusters', color='indianred', fontsize=12)
-ax2.tick_params(axis='y', labelcolor='indianred')
-
-ax1.grid(True, which="major", linestyle="--", linewidth=0.7, alpha=0.7) 
-ax1.tick_params(axis='both', which='minor', length=4, color='gray')
-
-fig.tight_layout()
-plt.show()
+print(f"Finished! File '{output_excel}' created.")
