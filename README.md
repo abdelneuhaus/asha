@@ -53,8 +53,13 @@ HCS-SMLM-Pipeline/
 * `ipyfilechooser`
 * `openpyxl` (for Excel export)
 
-*Install via:* ```bash
-pip install pandas numpy matplotlib seaborn ipywidgets ipyfilechooser openpyxl```
+*Install via:* 
+```bash
+python -m venv venv
+
+venv/source/activate
+
+pip install -r requirements.txt```
 
 
 ### R Requirements
