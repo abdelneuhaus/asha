@@ -88,4 +88,4 @@ def process_and_export_plates(plate_paths, stat_choice, output_file="./results/h
                 
             df_export.to_excel(writer, index=False, sheet_name=param)
             
-    print("Export worked properly!")
+    print("Export worked properly!") 
