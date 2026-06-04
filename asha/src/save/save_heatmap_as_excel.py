@@ -8,13 +8,15 @@ from src.io_utils import get_poca_files, read_poca_files, fusion, creer_matrice_
 
 def save_heatmap_as_excel(pathway, output_file="./results/heatmap_matrices.xlsx", stats=np.median):
     """
-    Extrait tous les paramètres photophysiques d'une plaque et exporte 
-    une matrice 8x12 (format 96 puits) pour chaque paramètre dans un fichier Excel.
+    Extracts all photophysical parameters from a plate and exports a 8x12 matrix for each parameter into an Excel file.
 
     Args:
-        pathway (str): Chemin absolu vers le dossier de la plaque contenant les fichiers PoCA.
-        output_file (str): Chemin du fichier Excel de destination.
-        stats (callable): Fonction statistique (np.median par défaut).
+        pathway (str): Absolute path to the plate directory containing the PoCA files.
+        output_file (str): Destination path for the generated Excel file.
+        stats (callable, optional): The statistical function to apply (default is np.median).
+
+    Returns:
+        None: The function saves an Excel file, with each parameter in a separate sheet.
     """
     exp_name = os.path.basename(os.path.normpath(pathway))
     list_of_poca = get_poca_files(pathway) 
@@ -24,11 +26,9 @@ def save_heatmap_as_excel(pathway, output_file="./results/heatmap_matrices.xlsx"
         return
 
     parameters = ["photon_loc", "total ON", "intensity", "blinks", "avg_on", "avg_off"]
-    
-    # Stockage global pour cette plaque : un dictionnaire contenant une liste par paramètre
     heatmap_data_dict = {param: [] for param in parameters}
     
-    print(f"Extraction des matrices pour la plaque : {exp_name}...")
+    print(f"Extraction for plate : {exp_name}...")
     
     for f in list_of_poca:
         df = read_poca_files(f)
@@ -58,7 +58,7 @@ def save_heatmap_as_excel(pathway, output_file="./results/heatmap_matrices.xlsx"
     all_wells = fusion(cols, idx)
     
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    print(f"Sauvegarde dans {output_file}...")
+    print(f"Save in {output_file}...")
     
     with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
         for param in parameters:
@@ -66,4 +66,4 @@ def save_heatmap_as_excel(pathway, output_file="./results/heatmap_matrices.xlsx"
             df_heat = pd.DataFrame(np.array(matrice_resultante).reshape(8, 12), index=cols, columns=idx)
             df_heat.to_excel(writer, sheet_name=param)
             
-    print(f"Export Excel des heatmaps terminé !")
+    print(f"Excel export done!")
