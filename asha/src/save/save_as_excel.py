@@ -5,16 +5,28 @@ import numpy as np
 from src.io_utils import get_poca_files, read_poca_files
 
 
-def process_and_export_plates(plate_paths, stat_choice, output_file="./results/hcs_excel.xlsx"):
-    """Processes multiple HCS-SMLM plates and exports the chosen statistics to Excel.
+def format_mean_sd(values):
+        clean_vals = pd.Series(values).dropna()
+        if len(clean_vals) == 0:
+            return "-"
+        elif len(clean_vals) == 1:
+            return f"{clean_vals.iloc[0]:.2f} ± 0.00"
+        else:
+            return f"{clean_vals.mean():.2f} ± {clean_vals.std():.2f}"
+
+
+def process_and_export_plates(plate_paths, stat_choice, output_file="./results/hcs_excel.xlsx", output_file_replicates="./results/table2_summary.xlsx"):
+    """
+    Processes multiple HCS-SMLM plates and exports well statistics to Excel.
+    Also exports a secondary table summarizing Replicates and Mean ± SD per plate/globally.
 
     Args:
         plate_paths (list of str): List of absolute paths to the plate directories.
-        stat_choice (str): The statistical metric to compute ('Median' or 'Mean').
-        output_file (str, optional): The destination path for the Excel file.
-
+        stat_choice (str): The statistical metric to compute ('Median' or 'Mean') for well-level data.
+        output_file (str): Destination path for the raw well data Excel file.
+        output_file_replicates (str): Destination path for the summary table.
     Returns:
-        None: Saves the compiled data directly to the specified Excel file.
+        None: The function saves two Excel files.
     """
     fixed_subfolders = {
         "mEos4b_": ["C9", "D3", "E9"],
@@ -30,17 +42,28 @@ def process_and_export_plates(plate_paths, stat_choice, output_file="./results/h
     global_data = {param: {prot: [] for prot in fixed_subfolders} for param in parameters}
     stat_func = np.median if stat_choice == 'Median' else np.mean
 
+    replicates_counts = {prot: [] for prot in fixed_subfolders}
+    plate_names = []
+    
+    table2_stats = {param: {} for param in parameters}
     print("Extracting data...")
     
     for plate_path in plate_paths:
         if not plate_path.strip():
             continue
             
-        print(f"Plate processing : {os.path.basename(plate_path)}")
+        plate_name = os.path.basename(plate_path)
+        print(f"Plate processing : {plate_name}")
+        plate_names.append(plate_name)
         
+        for param in parameters:
+            table2_stats[param][plate_name] = {}
+            
         current_plate_data = {param: {prot: [] for prot in fixed_subfolders} for param in parameters}
         
         for protein, wells in fixed_subfolders.items():
+            rep_count = 0
+            
             for well in wells:
                 well_path = os.path.join(plate_path, well)
                 if not os.path.exists(well_path):
@@ -63,8 +86,14 @@ def process_and_export_plates(plate_paths, stat_choice, output_file="./results/h
                         current_plate_data["avg_on"][protein].append(stat_func(avg_on.dropna()))
                         current_plate_data["avg_off"][protein].append(stat_func(avg_off.dropna()))
 
+                        rep_count += 1
                     except Exception as e:
                         print(f"Error on file {file}: {e}")
+            
+            replicates_counts[protein].append(rep_count)
+            
+            for param in parameters:
+                table2_stats[param][plate_name][protein] = format_mean_sd(current_plate_data[param][protein])
         
         for param in parameters:
             max_len_current = max((len(current_plate_data[param][prot]) for prot in fixed_subfolders), default=0)
@@ -76,8 +105,10 @@ def process_and_export_plates(plate_paths, stat_choice, output_file="./results/h
                 global_data[param][protein].append(np.nan)
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    print(f"Saving in {output_file}...")
+    os.makedirs(os.path.dirname(output_file_replicates), exist_ok=True)
     
+    # main file
+    print(f"Saving raw well data in {output_file}...")
     with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
         for param in parameters:
             df_export = pd.DataFrame(global_data[param])
@@ -85,4 +116,26 @@ def process_and_export_plates(plate_paths, stat_choice, output_file="./results/h
                 df_export = df_export.iloc[:-1]
             df_export.to_excel(writer, index=False, sheet_name=param)
             
+    # file table2
+    print(f"Saving summaries in {output_file_replicates}...")
+    with pd.ExcelWriter(output_file_replicates, engine='openpyxl') as writer2:
+        # Onglet 1 : Tableau des réplicats
+        df_replicates = pd.DataFrame(replicates_counts, index=plate_names)
+        df_replicates.index.name = "Plate"
+        df_replicates.to_excel(writer2, sheet_name="Replicates")
+        
+        # summary mean and sd tab
+        for param in parameters:
+            df_param_summary = pd.DataFrame(index=plate_names + ["Global"], columns=fixed_subfolders.keys())
+            df_param_summary.index.name = "Plate"
+            
+            for plate in plate_names:
+                for prot in fixed_subfolders:
+                    df_param_summary.loc[plate, prot] = table2_stats[param][plate][prot]
+                    
+            for prot in fixed_subfolders:
+                df_param_summary.loc["Global", prot] = format_mean_sd(global_data[param][prot])
+                
+            df_param_summary.to_excel(writer2, sheet_name=param)
+
     print("Export worked properly!")
