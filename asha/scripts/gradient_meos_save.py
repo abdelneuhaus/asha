@@ -47,7 +47,6 @@ for position, conc in zip(meos_wells, concentration):
         "Mean #Clusters": val_cluster_final
     })
 
-# Création du tableau final et sauvegarde en Excel
 output_excel = "meos_gradient.xlsx"
 df_results = pd.DataFrame(export_data)
 df_results.to_excel(output_excel, index=False)
