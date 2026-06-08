@@ -1,7 +1,7 @@
 import os
 import math
 
-from src.io_utils import get_PALMTracer_files, get_poca_files, read_poca_files, read_locPALMTracer_file
+from src.io_utils import get_PALMTracer_files, get_poca_files, get_statMIA_files, read_statMIA, read_poca_files, read_locPALMTracer_file 
 
 
 def convert_size(size_bytes):
@@ -76,8 +76,11 @@ def count_total_locs_and_clusters(plate_path):
             - smf_size (str): Disk size occupied by .smf images.
             - processed_size (str): Disk size occupied by .csv and .txt files.
     """
+    list_of_mia_files = get_statMIA_files(plate_path)
     list_of_pt_files = get_PALMTracer_files(plate_path)
     list_of_poca_files = get_poca_files(plate_path)
+    
+    total_localizations_pre = sum(len(read_statMIA(f)) for f in list_of_mia_files)
     total_localizations = sum(len(read_locPALMTracer_file(f)) for f in list_of_pt_files)
     total_clusters = sum(len(read_poca_files(f)) for f in list_of_poca_files)
     total_bytes, smf_bytes, processed_bytes = get_size(plate_path)
@@ -85,4 +88,4 @@ def count_total_locs_and_clusters(plate_path):
     smf_size = convert_size(smf_bytes)
     processed_size = convert_size(processed_bytes)
     
-    return total_localizations, total_clusters, total_size, smf_size, processed_size
+    return total_localizations_pre, total_localizations, total_clusters, total_size, smf_size, processed_size
