@@ -5,10 +5,8 @@ from math import pi
 
 def plot_protein_radar_chart(excel_file):
     """
-    Lit un fichier Excel multiparamétrique, calcule la moyenne par protéine,
-    et génère un graphique en radar normalisé.
+    Génère 7 tracés radar individuels (un par protéine) sur 2 lignes.
     """
-    # Mapping pour renommer les paramètres
     name_mapping = {
         "photon_loc": "Photons/Loc",
         "intensity": "Photons/Mol",
@@ -18,54 +16,46 @@ def plot_protein_radar_chart(excel_file):
         "blinks": "NBlinks"
     }
 
-    # 1. Lecture
     xls = pd.read_excel(excel_file, sheet_name=None)
-    if 'global_metadata' in xls:
-        del xls['global_metadata']
+    if 'global_metadata' in xls: del xls['global_metadata']
     
-    # On filtre les feuilles selon le mapping
     available_params = [p for p in name_mapping.keys() if p in xls]
-    
-    # 2. Calcul et Normalisation
     proteins = xls[available_params[0]].columns.tolist()
+    labels = [name_mapping[p] for p in available_params]
+    
+    # Calcul et Normalisation (avec inversion)
     normalized_means = {prot: [] for prot in proteins}
-
     for param in available_params:
-        df = xls[param]
-        param_means = df.mean(numeric_only=True)
+        param_means = xls[param].mean(numeric_only=True)
         max_val = param_means.max()
         for prot in proteins:
             val = param_means[prot] / max_val if max_val > 0 else 0
+            if param in ["avg_off", "blinks"]: val = 1.0 - val
             normalized_means[prot].append(val)
 
-    # 3. Préparation Radar Chart
-    labels = [name_mapping[p] for p in available_params]
-    N = len(labels)
-    angles = [n / float(N) * 2 * pi for n in range(N)]
-    angles += angles[:1] 
-
-    fig, ax = plt.subplots(figsize=(5, 5), subplot_kw=dict(polar=True))
+    # Préparation de la figure : 2 lignes, 4 colonnes
+    N_params = len(labels)
+    angles = [n / float(N_params) * 2 * pi for n in range(N_params)] + [0]
     
-    # Configuration des axes (Labels)
-    plt.xticks(angles[:-1], labels, size=11, fontweight='bold')
-    ax.tick_params(axis='x', pad=40)
-    # Ajout des valeurs 0 à 1 sur l'axe radial
-    ax.set_rlabel_position(0)
-    plt.yticks([0.2, 0.4, 0.6, 0.8, 1.0], ["0.2", "0.4", "0.6", "0.8", "1.0"], color="grey", size=8)
-    plt.ylim(0, 1)
+    fig, axes = plt.subplots(2, 4, figsize=(16, 8), subplot_kw=dict(polar=True))
+    axes = axes.flatten() # Pour manipuler facilement les 8 cases (même si on n'en utilise que 7)
 
-    # Style
-    ax.spines['polar'].set_visible(False)
-    ax.grid(color='grey', linestyle='--', linewidth=0.5, alpha=0.5)
-
-    # Tracé
-    for prot in proteins:
+    for i, prot in enumerate(proteins):
+        ax = axes[i]
         values = normalized_means[prot] + normalized_means[prot][:1]
-        ax.plot(angles, values, linewidth=2, linestyle='solid', label=prot)
-        ax.fill(angles, values, alpha=0.1)
+        ax.plot(angles, values, linewidth=2, color='tab:blue')
+        ax.fill(angles, values, alpha=0.2, color='tab:blue')
+        
+        ax.set_xticks(angles[:-1])
+        ax.set_xticklabels(labels, size=8)
+        ax.set_ylim(0, 1)
+        ax.set_yticks([0.2, 0.4, 0.6, 0.8, 1.0])
+        ax.set_yticklabels([])
+        ax.set_title(prot, size=12, fontweight='bold', pad=15)
+        ax.grid(color='grey', linestyle='--', linewidth=0.5, alpha=0.5)
 
-    # Légende et Titre (English)
-    plt.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1), title="Proteins", frameon=False)
+    # Cacher le 8ème plot (inutile car on a 7 protéines)
+    axes[7].set_visible(False)
     
     plt.tight_layout()
     plt.show()
