@@ -5,8 +5,15 @@ from math import pi
 
 def plot_protein_radar_chart(excel_file):
     """
-    Génère 7 tracés radar individuels (un par protéine) sur 2 lignes.
+    Generates a grid of individual radar charts comparing protein photophysical properties.
+
+    Args:
+        excel_file (str): Absolute path to the Excel file containing the analysis data. Each sheet name must correspond to a key in the internal mapping
+
+    Returns:
+        None: Displays the generated matplotlib figure directly.    
     """
+    
     name_mapping = {
         "photon_loc": "Photons/Loc",
         "intensity": "Photons/Mol",
@@ -23,7 +30,6 @@ def plot_protein_radar_chart(excel_file):
     proteins = xls[available_params[0]].columns.tolist()
     labels = [name_mapping[p] for p in available_params]
     
-    # Calcul et Normalisation (avec inversion)
     normalized_means = {prot: [] for prot in proteins}
     for param in available_params:
         param_means = xls[param].mean(numeric_only=True)
@@ -33,12 +39,11 @@ def plot_protein_radar_chart(excel_file):
             if param in ["avg_off", "blinks"]: val = 1.0 - val
             normalized_means[prot].append(val)
 
-    # Préparation de la figure : 2 lignes, 4 colonnes
     N_params = len(labels)
     angles = [n / float(N_params) * 2 * pi for n in range(N_params)] + [0]
     
     fig, axes = plt.subplots(2, 4, figsize=(16, 8), subplot_kw=dict(polar=True))
-    axes = axes.flatten() # Pour manipuler facilement les 8 cases (même si on n'en utilise que 7)
+    axes = axes.flatten() 
 
     for i, prot in enumerate(proteins):
         ax = axes[i]
@@ -54,11 +59,9 @@ def plot_protein_radar_chart(excel_file):
         ax.set_title(prot, size=12, fontweight='bold', pad=15)
         ax.grid(color='grey', linestyle='--', linewidth=0.5, alpha=0.5)
 
-    # Cacher le 8ème plot (inutile car on a 7 protéines)
     axes[7].set_visible(False)
     
     plt.tight_layout()
     plt.show()
 
-# Utilisation :
 raw_data = plot_protein_radar_chart("/Users/aneuhaus/Desktop/asha/DATA/figure3d_&_3e.xlsx")
