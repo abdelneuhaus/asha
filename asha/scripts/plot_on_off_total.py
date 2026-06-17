@@ -1,5 +1,4 @@
 import os
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -94,4 +93,4 @@ def plot_plate_on_off_histograms(plate_path, bins=100):
     plt.tight_layout()
     plt.show()
 
-plot_plate_on_off_histograms("/Users/aneuhaus/Desktop/asha/DATA/W1_bis/C4")
+plot_plate_on_off_histograms("D:/ANALYSIS_PAPER/new_threshold/240417_W1_FPs/C4")
