@@ -1,4 +1,4 @@
-# HCS-SMLM Data Analysis Pipeline
+# ASHA: Automatic Single-molecule High content screening Analysis
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
 ![R](https://img.shields.io/badge/R-4.0%2B-blue)
