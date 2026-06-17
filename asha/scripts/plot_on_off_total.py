@@ -9,10 +9,6 @@ def plot_plate_on_off_histograms(plate_path, bins=100):
     """
     Extracts and plots outlier-free distributions for total_on, avg_on, and avg_off.
 
-    Traverses all POCA files in the plate, calculates durations per molecule,
-    removes outliers using the Interquartile Range (IQR) method (the core of a boxplot),
-    and displays the cleaned data across three histograms.
-
     Args:
         plate_path (str): Absolute path to the plate directory.
         bins (int, optional): Number of bins for the histograms. Defaults to 100.
