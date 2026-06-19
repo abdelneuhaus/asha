@@ -7,7 +7,6 @@ from src.io_utils import read_poca_files, get_poca_files, get_PALMTracer_files, 
 
 list_of_pt_files = get_PALMTracer_files('D:/ANALYSIS_PAPER/gamme/MEOS')
 list_of_poca_files = get_poca_files('D:/ANALYSIS_PAPER/gamme/MEOS')
-
 meos_wells = ["F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10"]
 concentration = [1, 0.5, 0.2, 0.15, 0.1, 0.075, 0.05, 0.01]
 
