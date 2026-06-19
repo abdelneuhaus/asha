@@ -23,23 +23,28 @@ This toolkit bridges automated data extraction from PoCA and PALMTracer outputs 
 ## Project Structure
 
 ```text
-HCS-SMLM-Pipeline/
+ASHA/
 │
-├── notebooks/              # Jupyter Notebooks containing the interactive UIs
-│   └── interactive_dashboard.ipynb
+├── notebooks/                  # Interactive exploration and pre-processing
+│   ├── hcs_plate_exploration.ipynb
+│   └── preprocessing.ipynb
 │
-├── src/                    # Python Backend
-│   ├── __init__.py
-│   ├── io_utils.py         # File parsing and data cleaning (get_poca_files, etc.)
-│   ├── visualization.py    # Matplotlib/Seaborn functions for heatmaps and boxplots
-│   └── save_as_excel.py    # Logic for pooling and exporting data to Excel
+├── scripts/                    # Ready-to-run Python execution scripts
+│   ├── gradient_meos_*.py      # Gradients and linear/log fits for SpyCatcher
+│   ├── spycatcher_*.py
+│   ├── *_heatmap.py            # Plate and control heatmap generators
+│   └── *_histograms.py         # Advanced ON/OFF duration analysis (frame.csv)
 │
-├── R/                      # R Backend for statistical matrices
-│   ├── io_utils.R          # R equivalent for file parsing
-│   └── comparison_matrix.R # Log2 ratio matrix generation with ggplot2
+├── src/                        # Python Backend Core
+│   ├── io_utils.py             # File parsing and data cleaning (PoCA, PALMTracer)
+│   ├── preprocessing/          # Data filtering pipelines
+│   ├── visualization/          # Heatmaps and boxplots rendering mechanics
+│   └── save/                   # Data pooling and Excel export modules
 │
-├── data/                   # (Optional) Place raw experimental data here
-└── results/                # Output directory for exported PDFs and Excel files
+└── R/                          # R Statistical & Multi-plot Suite
+    ├── utils.R                 # I/O utilities for PoCA file extractions
+    ├── table_*.R               # Specialized comparison matrices (Log2 ratios)
+    └── all_protein_wells_*.R   # 2x4 and mega-grid visualization with stat tests
 ```
 
 ## Dependencies
