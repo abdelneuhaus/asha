@@ -92,8 +92,8 @@ def heatmap_count_per_plane(exp_name, param, list_of_files):
 
 
 if __name__ == '__main__':
-    path_prot = "D:/ANALYSIS_PAPER/new_threshold/240417_W1_FPs"
-    path_ctrl = "D:/ANALYSIS_PAPER/new_threshold/240417_W1_control"
+    path_prot = "D:/ANALYSIS_PAPER/new_threshold/241113_W1_FPs"
+    path_ctrl = "D:/ANALYSIS_PAPER/new_threshold/241113_W1_control"
 
     print("Generating Locs/Plane Heatmap...")
     plot_controlled_plate_heatmap(path_prot, path_ctrl, param='locs_per_plane')
