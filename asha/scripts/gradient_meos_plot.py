@@ -1,10 +1,14 @@
 import matplotlib.pyplot as plt
+import os
+import sys
+
+rep = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, rep)
 
 from src.io_utils import read_poca_files, get_poca_files, get_PALMTracer_files, read_locPALMTracer_file
 
-
-list_of_pt_files = get_PALMTracer_files('D:/ANALYSIS_PAPER/gamme/MEOS')
-list_of_poca_files = get_poca_files('D:/ANALYSIS_PAPER/gamme/MEOS')
+list_of_pt_files = get_PALMTracer_files('D:/ANALYSIS_PAPER/gammes/MEOS')
+list_of_poca_files = get_poca_files('D:/ANALYSIS_PAPER/gammes/MEOS')
 
 meos_wells = ["F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10"]
 concentration = [1, 0.5, 0.2, 0.15, 0.1, 0.075, 0.05, 0.01]
@@ -61,7 +65,7 @@ ax2 = ax1.twinx()
 ax2.scatter(plot_conc_clusters, plot_clusters, color='salmon', label='Nombre de clusters')
 ax2.set_ylabel('#Clusters', color='indianred', fontsize=12)
 ax2.tick_params(axis='y', labelcolor='indianred')
-
+ax2.set_ylim(0, 6000)
 ax1.grid(True, which="major", linestyle="--", linewidth=0.7, alpha=0.7) 
 ax1.tick_params(axis='both', which='minor', length=4, color='gray')
 
