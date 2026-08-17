@@ -116,20 +116,16 @@ p2 <- ggplot(data_p2, aes(x = Well, y = mean_value, fill = Well)) +
 
 # plate replicates 
 my_comparisons <- list( c("Plate 1", "Plate 2"), c("Plate 2", "Plate 3"), c("Plate 1", "Plate 3") ) 
-# 2. On augmente la limite de l'axe Y pour faire de la place en haut 
 y_limits <- c(45, 230) 
 p3 <- ggplot(mean_data_all, aes(x = Plate, y = mean_value, fill = Plate)) + 
   geom_boxplot(color = "black", outlier.shape = NA, width = 0.5, alpha = 0.5) + 
   geom_jitter(width = 0.1, shape = 21, fill = "white", color = "black", size = 1.5, alpha = 0.7) + 
   scale_fill_manual(values = c("#377eb8", "#ff7f00", "#4daf4a")) + 
-  # Barres Wilcoxon étagées manuellement dans l'espace vide
   stat_compare_means(comparisons = my_comparisons, 
                      method = "wilcox.test", 
                      p.adjust.method = "BH", 
                      label.y = c(185, 195, 210)) + 
-  # <-- 3 hauteurs pour les 3 barres # Texte Kruskal-Wallis placé tout au sommet 
   stat_compare_means(method = "kruskal.test", label.y = 229) +  
-  # <-- Au-dessus des barres 
   labs(title = "Plate Replicates", y = "", x = "") + custom_theme + coord_cartesian(ylim = y_limits) 
 
 

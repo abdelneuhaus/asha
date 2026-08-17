@@ -1,5 +1,5 @@
 import math
-
+import os
 import pandas as pd
 
 from src.io_utils import get_statMIA_files, read_statMIA
@@ -28,9 +28,20 @@ def mia_to_pt_sliding_windows(plate_path:str, nlocs:int=60, len_window:int=300,
 
     for mia_file in list_of_mia_files:
         raw_data = read_statMIA(mia_file)
+        
+        # 1. Comptage initial
+        initial_locs = len(raw_data)
+        
         raw_data['Intensity Gauss'] *= 2 * math.pi * raw_data['SigmaX'] * raw_data['SigmaY']
+        
+        # Filtres morphologiques et d'intensité
         raw_data = raw_data[(raw_data['SigmaX'] > sigma_min) & (raw_data['SigmaX'] < sigma_max)]
         raw_data = raw_data[(raw_data['Intensity Gauss'] >= intensity_min) & (raw_data['Intensity Gauss'] <= intensity_max)]
+        
+        # 2. Comptage après les filtres de paramètres
+        locs_after_params = len(raw_data)
+        filtered_by_params = initial_locs - locs_after_params
+        
         loc_per_frame = raw_data.groupby('Plane').size()
 
         try:
@@ -46,20 +57,22 @@ def mia_to_pt_sliding_windows(plate_path:str, nlocs:int=60, len_window:int=300,
         if not valid_frames.empty:
             start_frame = valid_frames[0]
             raw_data = raw_data[(raw_data['Plane'] >= start_frame)]
+            
+            # 3. Comptage après le sliding window
+            locs_after_window = len(raw_data)
+            filtered_by_window = locs_after_params - locs_after_window
+            
+            # --- AFFICHAGE DES RÉSULTATS ---
+            print(f"\nFichier : {os.path.basename(mia_file)}")
+            print(f"  - Localisations initiales : {initial_locs}")
+            print(f"  - Retirées par les filtres (Sigma/Intensité) : {filtered_by_params}")
+            print(f"  - Retirées par le Sliding Window (frames < {start_frame}) : {filtered_by_window}")
+            print(f"  - Localisations finales conservées : {locs_after_window}")
+            # -------------------------------
+
             loc_per_frame = loc_per_frame[loc_per_frame.index >= start_frame]
             rolling_avg = rolling_avg[rolling_avg.index >= start_frame]
             
-            ## Plot the density and rolling average
-            # plt.figure(figsize=(10, 6))
-            # plt.plot(loc_per_frame.index, loc_per_frame, label='Density (Localizations per Frame)', alpha=0.7)
-            # plt.plot(rolling_avg.index, rolling_avg, label='Rolling Average', color='red', linewidth=2)
-            # plt.axhline(nlocs, color='gray', linestyle='--', label='Threshold')
-            # plt.xlabel('Frame')
-            # plt.ylabel('Density (Localizations per Frame)')
-            # plt.title(f'Density Over Time for {os.path.basename(mia_file)}')
-            # plt.legend()
-            # plt.show()
-        
             filtered_data = raw_data.rename(columns={'Chi2(Gauss)': 'MSE(Gauss)',
                                                         'Intensity Gauss': 'Integrated_Intensity',
                                                         'CentroidX(pix)': 'CentroidX(px)', 
@@ -93,6 +106,6 @@ def mia_to_pt_sliding_windows(plate_path:str, nlocs:int=60, len_window:int=300,
                 file.write(filtered_data.to_csv(sep='\t', index=False, header=False))
                 
         else:
-            print(f"No valid frames found for file: {mia_file}")
+            print(f"\nFichier : {os.path.basename(mia_file)} -> AUCUNE FRAME VALIDE TROUVÉE")
 
-    print("Done")
+    print("\nTerminé.")
