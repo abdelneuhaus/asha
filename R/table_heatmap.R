@@ -25,7 +25,7 @@ proteins_map <- list(
   "mMaple3" = c("C8", "D4", "E8")
 )
 
-raw_data_all <- data.frame()
+fov_data_all <- data.frame()
 
 cat("Beginning of data extraction...\n")
 
@@ -40,6 +40,7 @@ for (plate_dir in base_dirs) {
       
       if (length(poca_files) == 0) next
       
+      # one PoCA file = one FOV
       for (f in seq_along(poca_files)) {
         df_poca <- read_poca_files(poca_files[f])
         
@@ -51,13 +52,20 @@ for (plate_dir in base_dirs) {
           extracted_values <- df_poca[[target_param]]
         }
         
+        # molecule-level values, then FOV median (the statistical unit)
+        extracted_values <- extracted_values[is.finite(extracted_values)]
+        if (length(extracted_values) == 0) next
+        
+        fov_median <- median(extracted_values, na.rm = TRUE)
+        
         temp_data <- data.frame(
           Protein = prot_name,
           Plate = basename(plate_dir),
           Well = well,
-          value = extracted_values
+          FOV = f,
+          fov_median = fov_median
         )
-        raw_data_all <- bind_rows(raw_data_all, temp_data)
+        fov_data_all <- bind_rows(fov_data_all, temp_data)
       }
     }
   }
@@ -65,16 +73,18 @@ for (plate_dir in base_dirs) {
 
 cat("Extraction finished. Computing matrix...\n")
 
-# reference is meos3.2
-ref_data <- raw_data_all %>%
+# reference is mEos3.2: median of its FOV medians, per plate
+ref_data <- fov_data_all %>%
   filter(Protein == "mEos3.2") %>%
   group_by(Plate) %>%
-  summarize(ref_median = median(value, na.rm = TRUE))
+  summarize(ref_median = median(fov_median, na.rm = TRUE))
 
-normalized_data <- raw_data_all %>%
+# each FOV median is normalized to the plate mEos3.2 reference
+normalized_data <- fov_data_all %>%
   left_join(ref_data, by = "Plate") %>%
-  mutate(norm_value = value / ref_median) 
+  mutate(norm_value = fov_median / ref_median) 
 
+# per protein: median of normalized FOV medians, pooled across all plates
 summary_data <- normalized_data %>%
   group_by(Protein) %>%
   summarize(median_val = median(norm_value, na.rm = TRUE))
@@ -85,12 +95,6 @@ protein_medians <- protein_medians[names(proteins_map)]
 
 ratio_matrix <- outer(protein_medians, protein_medians, FUN = "/")
 log2_matrix <- log2(ratio_matrix)
-
-df_heatmap <- melt(log2_matrix, na.rm = TRUE)
-colnames(df_heatmap) <- c("Protein_Y", "Protein_X", "Log2_Ratio")
-
-df_heatmap$Protein_X <- factor(df_heatmap$Protein_X, levels = names(proteins_map))
-df_heatmap$Protein_Y <- factor(df_heatmap$Protein_Y, levels = names(proteins_map))
 
 df_heatmap <- melt(log2_matrix, na.rm = TRUE)
 colnames(df_heatmap) <- c("Protein_Y", "Protein_X", "Log2_Ratio")
