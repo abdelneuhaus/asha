@@ -99,7 +99,6 @@ def count_filtering(plate_path:str, nlocs:int=60, len_window:int=300,
     print(f"Localisations dans les clusters (ON) : {int(total_poca_locs)}")
     print("-" * 50)
     
-    # Calcul des localisations rejetées par le DBSCAN (bruit)
     if total_final > 0:
         locs_perdues = total_final - int(total_poca_locs)
         pourcentage_perte = (locs_perdues / total_final) * 100

@@ -69,21 +69,21 @@ cat("Extraction finished. Computing matrix...\n")
 ref_data <- raw_data_all %>%
   filter(Protein == "mEos3.2") %>%
   group_by(Plate) %>%
-  summarize(ref_mean = mean(value, na.rm = TRUE))
+  summarize(ref_median = median(value, na.rm = TRUE))
 
 normalized_data <- raw_data_all %>%
   left_join(ref_data, by = "Plate") %>%
-  mutate(norm_value = value / ref_mean) 
+  mutate(norm_value = value / ref_median) 
 
 summary_data <- normalized_data %>%
   group_by(Protein) %>%
-  summarize(mean_val = mean(norm_value, na.rm = TRUE))
+  summarize(median_val = median(norm_value, na.rm = TRUE))
 
-protein_means <- summary_data$mean_val
-names(protein_means) <- summary_data$Protein
-protein_means <- protein_means[names(proteins_map)]
+protein_medians <- summary_data$median_val
+names(protein_medians) <- summary_data$Protein
+protein_medians <- protein_medians[names(proteins_map)]
 
-ratio_matrix <- outer(protein_means, protein_means, FUN = "/")
+ratio_matrix <- outer(protein_medians, protein_medians, FUN = "/")
 log2_matrix <- log2(ratio_matrix)
 
 df_heatmap <- melt(log2_matrix, na.rm = TRUE)
